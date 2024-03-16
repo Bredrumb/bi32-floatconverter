@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="./design/logo.ico">
+	<link rel="stylesheet" type="text/css" href="./design/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" type="text/javascript"></script>
+    
+<title>Single-Precision Converter</title>
+</head>
+    <body>
+
+        <!-- -->
+        <p>
+            Convert your number to IEEE-754 Single-Precision!
+        </p>
+
+        <span>
+            <form id="chosenbase">
+                <fieldset>
+                  <legend>1. Choose Your Input's Base</legend>
+                  <label><input type="radio" name="base" value="binary" checked/> Base-2 (Binary)</label> <br/>
+                  <label><input type="radio" name="base" value="decimal" /> Base-10 (Decimal)</label> <br/>
+                </fieldset>
+            </form>
+            <br/>
+
+            <fieldset>
+                <legend>2. Input A Number With Exponent</legend>
+                <label for="input"></label>
+                <input type="number" id="input" name="input" placeholder="NUMBER">
+                <label id="explabel" for="exp">x2 raised to</label>
+                <input type="number" id="exp" name="exp" placeholder="EXP">
+            </fieldset>
+            <p id="inputwarning"></p>
+            <p id="expwarning"></p>
+            <button value="convert" id="convert">CONVERT</button>
+        </span>
+        <fieldset>
+            <legend>3. Results:</legend>
+            <p>IEEE-754 Single Precision Binary:</p>
+            <p id="result"> 0 </p>
+            <p>Hexadecimal Equivalent:</p>
+            <p id="hexresult"> 0 </p>
+        </fieldset>
+        
+
+        <button value="save" id="save">SAVE AS TEXT FILE</button>
+
+
+
+        <script src="./converter.js" type="text/javascript"></script>
+    </body>
+</html>

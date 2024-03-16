@@ -1,0 +1,63 @@
+#input
+{
+    width: 200px; 
+    text-align: right;
+}
+
+#exp
+{
+    width: 90px;
+}
+
+body
+{
+    background-color: #181a1d;
+    color: aliceblue;
+    font-family: "Rubik", monospace;
+    text-align: justify;
+    font-size: x-large;
+}
+
+input 
+{
+    font-family: "Rubik", monospace;
+    font-size: xx-large;
+    
+}
+
+input[type='radio'] 
+{ 
+    transform: scale(2); 
+}
+
+fieldset
+{
+    max-width: 800px;
+}
+
+
+button
+{
+    background-color: #f8e536;
+    color: rgb(39, 39, 39);
+    font-family: "Rubik", monospace;
+    text-align: justify;
+    font-size: xx-large;
+    padding:10px;
+    margin:10px;
+    margin-bottom: 50px;
+    
+
+}
+
+button:hover 
+{
+    background-color: #eeffa0;
+    cursor: pointer;
+}
+
+button:active 
+{
+  background-color: #eeffa0;
+  transform: translateY(5px);
+}
