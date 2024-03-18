@@ -23,7 +23,8 @@ $(document).ready(function (){
 
       });
 
-
+    let resulttext = $(document.getElementById("result"))
+    let hextext = $(document.getElementById("hexresult"))
     // User presses "CONVERT"
     $('#convert').on('click', function (e){
         let inputval = parseFloat($("#input").val())    // Input number
@@ -222,7 +223,7 @@ $(document).ready(function (){
                     //Copying fraction part of significand to the last 23 bits
                     for (let i = 0; i < 23; i++) {
                         inputval = inputval * 10
-                        if ((Math.round(inputval) % 10) >= 1){
+                        if ((Math.round(inputval) % 10) == 1){
                             IEEE754[i + 9] = 1
                         }
                         else{
@@ -269,8 +270,6 @@ $(document).ready(function (){
         let hexval = "0x" + hex.join("")
 
         // Prints resultval in webapp
-        let resulttext = $(document.getElementById("result"))
-        let hextext = $(document.getElementById("hexresult"))
         resulttext.text(resultval) 
         hextext.text(hexval) 
 
@@ -279,11 +278,22 @@ $(document).ready(function (){
 
     // User presses "SAVE AS TEXT FILE"
     $('#save').on('click', function (e){
+        //create or obtain the file's content
+        var content = "IEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
 
+        //create a file and put the content, name and type
+        var file = new File(["\ufeff"+content], 'output.txt', {type: "text/plain:charset=UTF-8"});
 
+        //create a ObjectURL in order to download the created file
+        url = window.URL.createObjectURL(file);
 
-
-
+        //create a hidden link and set the href and click it
+        var a = document.createElement("a");
+        a.style = "display: none";
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        window.URL.revokeObjectURL(url);
     });
 
     // Prevents invalid 'input'
