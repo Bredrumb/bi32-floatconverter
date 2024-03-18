@@ -46,60 +46,60 @@ $(document).ready(function (){
                     IEEE754[0] = 1
                     inputval *= -1
                 }
-                //Check if input number is infinity (Largest decimal number is 3.4 x 10^38)
-                if (expval > 38 || (expval == 38 && inputval > 3.4) || (expval == 38 && inputval < -3.4)){
+
+                //Make the exponent zero
+                while (expval != 0){
+                    if (expval > 0){
+                        inputval = inputval * 10
+                        expval--
+                    }
+                    else{
+                        inputval = inputval / 10
+                        expval++
+                    }
+                }
+                let integerPart = Math.floor(inputval)
+                let fractionPart = inputval - integerPart
+
+                let integerBinary = 0
+                let multiplier = 1
+                //Convert integer part of decimal to binary
+                while (integerPart > 0){
+                    integerBinary += (integerPart % 2) * multiplier;
+                    integerPart = Math.floor(integerPart / 2);
+                    multiplier *= 10
+                }
+                let fractionBinary = 0;
+                multiplier = 0.1
+                //Convert fraction part of decimal to binary
+                while (fractionPart != 0){
+                    fractionPart *= 2;
+                    if (fractionPart >= 1) {
+                        fractionBinary += multiplier;
+                        fractionPart -= 1;
+                    } 
+                    multiplier /= 10
+                }
+                //Assigning the equivalent binary float to inputval
+                inputval = integerBinary + fractionBinary
+                //Normalizing significand
+                while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
+                    if (inputval >= 2 || inputval <= -2){
+                        inputval = inputval / 10
+                        expval++
+                    }
+                    else{
+                        inputval = inputval * 10
+                        expval--
+                    }
+                }
+                //If input is infinity
+                if (expval > 127){
                     for (let i = 1; i < 9; i++){
                         IEEE754[i] = 1
                     }
                 }
                 else{
-                    //Make the exponent zero
-                    while (expval != 0){
-                        if (expval > 0){
-                            inputval = inputval * 10
-                            expval--
-                        }
-                        else{
-                            inputval = inputval / 10
-                            expval++
-                        }
-                    }
-                    let integerPart = Math.floor(inputval)
-                    let fractionPart = inputval - integerPart
-
-                    let integerBinary = 0
-                    let multiplier = 1
-                    //Convert integer part of decimal to binary
-                    while (integerPart > 0){
-                        integerBinary += (integerPart % 2) * multiplier;
-                        integerPart = Math.floor(integerPart / 2);
-                        multiplier *= 10
-                    }
-                    let fractionBinary = 0;
-                    multiplier = 0.1
-                    //Convert fraction part of decimal to binary
-                    while (fractionPart != 0){
-                        fractionPart *= 2;
-                        if (fractionPart >= 1) {
-                            fractionBinary += multiplier;
-                            fractionPart -= 1;
-                        } 
-                        multiplier /= 10
-                    }
-                    //Assigning the equivalent binary float to inputval
-                    inputval = integerBinary + fractionBinary
-                    //Normalizing significand
-                    while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
-                        if (inputval >= 2 || inputval <= -2){
-                            inputval = inputval / 10
-                            expval++
-                        }
-                        else{
-                            inputval = inputval * 10
-                            expval--
-                        }
-                    }
-                    
                     //If input is denormalized
                     if (expval < -126){
                         while (expval < -126){
@@ -132,37 +132,36 @@ $(document).ready(function (){
                             IEEE754[i + 9] = 0
                         }
                     }
-                    
-                    //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
-                    for (let i = 0; i < 8; i++) {
-                        index = i * 4
-                        value = 8
-                        for (let j = 0; j < 4; j++){
-                            if(IEEE754[index + j] == 1){
-                                hex[i] += value
-                            }
-                            value = value / 2
+                }
+                //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
+                for (let i = 0; i < 8; i++) {
+                    index = i * 4
+                    value = 8
+                    for (let j = 0; j < 4; j++){
+                        if(IEEE754[index + j] == 1){
+                            hex[i] += value
                         }
-                        if(hex[i] >= 10){
-                            switch(hex[i]){
-                                case 10:
-                                    hex[i] = "A"
-                                    break
-                                case 11:
-                                    hex[i] = "B"
-                                    break
-                                case 12:
-                                    hex[i] = "C"
-                                    break
-                                case 13:
-                                    hex[i] = "D"
-                                    break
-                                case 14:
-                                    hex[i] = "E"
-                                    break
-                                case 15:
-                                    hex[i] = "F"
-                            }
+                        value = value / 2
+                    }
+                    if(hex[i] >= 10){
+                        switch(hex[i]){
+                            case 10:
+                                hex[i] = "A"
+                                break
+                            case 11:
+                                hex[i] = "B"
+                                break
+                            case 12:
+                                hex[i] = "C"
+                                break
+                            case 13:
+                                hex[i] = "D"
+                                break
+                            case 14:
+                                hex[i] = "E"
+                                break
+                            case 15:
+                                hex[i] = "F"
                         }
                     }
                 }
