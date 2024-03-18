@@ -38,6 +38,136 @@ $(document).ready(function (){
         if(basetype == "decimal")
         {
             // Converting Decimal (Base-10) to IEEE-754
+            //Check if input number is zero
+            if (inputval != 0){
+                //If input is negative, set the sign bit to 1
+                if(inputval < 0){
+                    IEEE754[0] = 1
+                    inputval *= -1
+                }
+                //Check if input number is infinity (Largest decimal number is 3.4 x 10^38)
+                if (expval > 38 || (expval == 38 && inputval > 3.4) || (expval == 38 && inputval < -3.4)){
+                    for (let i = 1; i < 9; i++){
+                        IEEE754[i] = 1
+                    }
+                }
+                else{
+                    //Make the exponent zero
+                    while (expval != 0){
+                        if (expval > 0){
+                            inputval = inputval * 10
+                            expval--
+                        }
+                        else{
+                            inputval = inputval / 10
+                            expval++
+                        }
+                    }
+                    let integerPart = Math.floor(inputval)
+                    let fractionPart = inputval - integerPart
+
+                    let integerBinary = 0
+                    let multiplier = 1
+                    //Convert integer part of decimal to binary
+                    while (integerPart > 0){
+                        integerBinary += (integerPart % 2) * multiplier;
+                        integerPart = Math.floor(integerPart / 2);
+                        multiplier *= 10
+                    }
+                    let fractionBinary = 0;
+                    multiplier = 0.1
+                    //Convert fraction part of decimal to binary
+                    while (fractionPart != 0){
+                        fractionPart *= 2;
+                        if (fractionPart >= 1) {
+                            fractionBinary += multiplier;
+                            fractionPart -= 1;
+                        } 
+                        multiplier /= 10
+                    }
+                    //Assigning the equivalent binary float to inputval
+                    inputval = integerBinary + fractionBinary
+                    //Normalizing significand
+                    while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
+                        if (inputval >= 2 || inputval <= -2){
+                            inputval = inputval / 10
+                            expval++
+                        }
+                        else{
+                            inputval = inputval * 10
+                            expval--
+                        }
+                    }
+                    
+                    //If input is denormalized
+                    if (expval < -126){
+                        while (expval < -126){
+                            inputval = inputval / 10
+                            expval++
+                        }
+                    }
+                    else{
+                        //e' = e + 127
+                        ePrime = 127 + expval
+                        let binary = 128
+                        let index = 1
+                        //Converting e' to binary
+                        while (ePrime > 0){
+                            if(ePrime >= binary){
+                                ePrime -= binary
+                                IEEE754[index] = 1
+                            }
+                            binary = binary / 2
+                            index++
+                        }
+                    }
+                    //Copying fraction part of significand to the last 23 bits
+                    for (let i = 0; i < 23; i++) {
+                        inputval = inputval * 10
+                        if ((Math.round(inputval) % 10) == 1){
+                            IEEE754[i + 9] = 1
+                        }
+                        else{
+                            IEEE754[i + 9] = 0
+                        }
+                    }
+                    
+                    //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
+                    for (let i = 0; i < 8; i++) {
+                        index = i * 4
+                        value = 8
+                        for (let j = 0; j < 4; j++){
+                            if(IEEE754[index + j] == 1){
+                                hex[i] += value
+                            }
+                            value = value / 2
+                        }
+                        if(hex[i] >= 10){
+                            switch(hex[i]){
+                                case 10:
+                                    hex[i] = "A"
+                                    break
+                                case 11:
+                                    hex[i] = "B"
+                                    break
+                                case 12:
+                                    hex[i] = "C"
+                                    break
+                                case 13:
+                                    hex[i] = "D"
+                                    break
+                                case 14:
+                                    hex[i] = "E"
+                                    break
+                                case 15:
+                                    hex[i] = "F"
+                            }
+                        }
+                    }
+                }
+
+            }
+
         }
         else
         {
@@ -58,6 +188,7 @@ $(document).ready(function (){
                 //If input is negative, set the sign bit to 1
                 if(inputval < 0){
                     IEEE754[0] = 1
+                    inputval *= -1
                 }
                 //If input is infinity
                 if (expval > 127){
@@ -91,7 +222,7 @@ $(document).ready(function (){
                     //Copying fraction part of significand to the last 23 bits
                     for (let i = 0; i < 23; i++) {
                         inputval = inputval * 10
-                        if ((Math.round(inputval) % 10) == 1){
+                        if ((Math.round(inputval) % 10) >= 1){
                             IEEE754[i + 9] = 1
                         }
                         else{
@@ -135,7 +266,7 @@ $(document).ready(function (){
         }
         //Adding spaces between sections of the IEEE-754 Binary-32 floating point representation
         let resultval = IEEE754[0] + " " + IEEE754.slice(1, 9).join("") + " " + IEEE754.slice(9, 32).join("")
-        let hexval = hex.join("")
+        let hexval = "0x" + hex.join("")
 
         // Prints resultval in webapp
         let resulttext = $(document.getElementById("result"))
