@@ -97,6 +97,7 @@ $(document).ready(function (){
                 if (expval > 127){
                     for (let i = 1; i < 9; i++){
                         IEEE754[i] = 1
+                        console.log(IEEE754)
                     }
                 }
                 else{
@@ -318,7 +319,7 @@ $(document).ready(function (){
         let basetype = $('input[name=base]:checked', '#chosenbase').val()        // 'binary' or 'decimal'
         if(basetype == "binary")
         {
-            return e.keyCode == 49 || e.keyCode == 48 || e.keyCode == 8 || e.keyCode == 190
+            return e.keyCode == 49 || e.keyCode == 48 || e.keyCode == 8 || e.keyCode == 189 || e.keyCode == 190
         }
     }).trigger( "keyup" );
 
