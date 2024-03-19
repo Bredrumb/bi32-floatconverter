@@ -67,3 +67,11 @@ button:disabled
     background-color: gray;
     cursor: not-allowed;
 }
+
+.infinity{
+    background-color: cornflowerblue;
+}
+
+.infinity:hover{
+    background-color: skyblue;
+}

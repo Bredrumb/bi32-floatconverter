@@ -278,7 +278,24 @@ $(document).ready(function (){
     // User presses "SAVE AS TEXT FILE"
     $('#save').on('click', function (e){
         //create or obtain the file's content
-        var content = "IEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
+        var compute_mode = ""
+        var base = ""
+        let basetype = $('input[name=base]:checked', '#chosenbase').val()
+
+        if (basetype == "binary"){
+            compute_mode = "IEEE-754 Single Precision Binary Conversion\nBinary Input\n"
+            base = "2"
+        }
+        else if (basetype == "decimal"){
+            compute_mode = "IEEE-754 Single Precision Binary Conversion\nDecimal Input\n"
+            base = "10"
+        }
+            
+
+        let inputval = parseFloat($("#input").val())    // Input number
+        let expval = parseInt($("#exp").val())          // Input exponent
+
+        var content = compute_mode + "Input: " + inputval + " x " + base + "^" + expval + "\n\nIEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
 
         //create a file and put the content, name and type
         var file = new File(["\ufeff"+content], 'output.txt', {type: "text/plain:charset=UTF-8"});
