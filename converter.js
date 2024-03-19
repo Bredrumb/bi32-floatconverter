@@ -306,10 +306,21 @@ $(document).ready(function (){
     }).trigger( "keyup" );
 
     // Prevents invalid 'exp'
-    $( "#exp" ).on( "keydown", function(e) 
+    $( "#exp" ).on( "keyup", function(e) 
     {
-        
+        let exp_value = $('#exp').val()
+        let basetype = $('input[name=base]:checked', '#chosenbase').val()        // 'binary' or 'decimal'
 
+        if(basetype == "decimal"){
+            if (exp_value > 299 || exp_value < -99) {
+                $("#convert").prop("disabled", true);
+                $("#expwarning").text("Exponent value too high. The application might crash.")
+            }
+            else {
+                $("#convert").prop("disabled", false);
+                $("#expwarning").text("Valid exponent value.")
+            }
+        }
     })
 
 });
