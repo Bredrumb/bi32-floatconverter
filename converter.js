@@ -34,233 +34,268 @@ $(document).ready(function (){
         let hex = new Array(8).fill(0)             //Initial hexadecimal
         let ePrime = 0                             //Initial e'
         let value = 0
+        let nan = $('#nan').text()                 //The displayed text if sNAN or qNAN is selected
 
         // Insert convertion stuffs here then store value in "resultval" and "hexval"
         if(basetype == "decimal")
         {
             // Converting Decimal (Base-10) to IEEE-754
-            //Check if input number is zero
-            if (inputval != 0){
-                //If input is negative, set the sign bit to 1
-                if(inputval < 0){
-                    IEEE754[0] = 1
-                    inputval *= -1
+            //Check if sNAN or qNAN is selected
+            if (nan == "sNAN is selected. Press the sNAN button again to unselect."){
+                for (let i = 1; i < 9; i++){
+                    IEEE754[i] = 1
+                    console.log(IEEE754)
                 }
+                IEEE754[9] = 0
+                IEEE754[10] = 1
+            }
+            else if (nan == "qNAN is selected. Press the qNAN button again to unselect."){
+                for (let i = 1; i < 9; i++){
+                    IEEE754[i] = 1
+                    console.log(IEEE754)
+                }
+                IEEE754[9] = 1
+            }
+            else{
+                //Check if input number is zero
+                if (inputval != 0){
+                    //If input is negative, set the sign bit to 1
+                    if(inputval < 0){
+                        IEEE754[0] = 1
+                        inputval *= -1
+                    }
 
-                //Make the exponent zero
-                while (expval != 0){
-                    if (expval > 0){
-                        inputval = inputval * 10
-                        expval--
-                    }
-                    else{
-                        inputval = inputval / 10
-                        expval++
-                    }
-                }
-                let integerPart = Math.floor(inputval)
-                let fractionPart = inputval - integerPart
-
-                let integerBinary = 0
-                let multiplier = 1
-                //Convert integer part of decimal to binary
-                while (integerPart > 0){
-                    integerBinary += (integerPart % 2) * multiplier;
-                    integerPart = Math.floor(integerPart / 2);
-                    multiplier *= 10
-                }
-                let fractionBinary = 0;
-                multiplier = 0.1
-                //Convert fraction part of decimal to binary
-                while (fractionPart != 0){
-                    fractionPart *= 2;
-                    if (fractionPart >= 1) {
-                        fractionBinary += multiplier;
-                        fractionPart -= 1;
-                    } 
-                    multiplier /= 10
-                }
-                //Assigning the equivalent binary float to inputval
-                inputval = integerBinary + fractionBinary
-                //Normalizing significand
-                while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
-                    if (inputval >= 2 || inputval <= -2){
-                        inputval = inputval / 10
-                        expval++
-                    }
-                    else{
-                        inputval = inputval * 10
-                        expval--
-                    }
-                }
-                //If input is infinity
-                if (expval > 127){
-                    for (let i = 1; i < 9; i++){
-                        IEEE754[i] = 1
-                        console.log(IEEE754)
-                    }
-                }
-                else{
-                    //If input is denormalized
-                    if (expval < -126){
-                        while (expval < -126){
+                    //Make the exponent zero
+                    while (expval != 0){
+                        if (expval > 0){
+                            inputval = inputval * 10
+                            expval--
+                        }
+                        else{
                             inputval = inputval / 10
                             expval++
                         }
                     }
-                    else{
-                        //e' = e + 127
-                        ePrime = 127 + expval
-                        let binary = 128
-                        let index = 1
-                        //Converting e' to binary
-                        while (ePrime > 0){
-                            if(ePrime >= binary){
-                                ePrime -= binary
-                                IEEE754[index] = 1
-                            }
-                            binary = binary / 2
-                            index++
-                        }
+                    let integerPart = Math.floor(inputval)
+                    let fractionPart = inputval - integerPart
+
+                    let integerBinary = 0
+                    let multiplier = 1
+                    //Convert integer part of decimal to binary
+                    while (integerPart > 0){
+                        integerBinary += (integerPart % 2) * multiplier;
+                        integerPart = Math.floor(integerPart / 2);
+                        multiplier *= 10
                     }
-                    //Copying fraction part of significand to the last 23 bits
-                    for (let i = 0; i < 23; i++) {
-                        inputval = inputval * 10
-                        if ((Math.round(inputval) % 10) == 1){
-                            IEEE754[i + 9] = 1
+                    let fractionBinary = 0;
+                    multiplier = 0.1
+                    //Convert fraction part of decimal to binary
+                    while (fractionPart != 0){
+                        fractionPart *= 2;
+                        if (fractionPart >= 1) {
+                            fractionBinary += multiplier;
+                            fractionPart -= 1;
+                        } 
+                        multiplier /= 10
+                    }
+                    //Assigning the equivalent binary float to inputval
+                    inputval = integerBinary + fractionBinary
+                    //Normalizing significand
+                    while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
+                        if (inputval >= 2 || inputval <= -2){
+                            inputval = inputval / 10
+                            expval++
                         }
                         else{
-                            IEEE754[i + 9] = 0
+                            inputval = inputval * 10
+                            expval--
+                        }
+                    }
+                    //If input is infinity
+                    if (expval > 127){
+                        for (let i = 1; i < 9; i++){
+                            IEEE754[i] = 1
+                            console.log(IEEE754)
+                        }
+                    }
+                    else{
+                        //If input is denormalized
+                        if (expval < -126){
+                            while (expval < -126){
+                                inputval = inputval / 10
+                                expval++
+                            }
+                        }
+                        else{
+                            //e' = e + 127
+                            ePrime = 127 + expval
+                            let binary = 128
+                            let index = 1
+                            //Converting e' to binary
+                            while (ePrime > 0){
+                                if(ePrime >= binary){
+                                    ePrime -= binary
+                                    IEEE754[index] = 1
+                                }
+                                binary = binary / 2
+                                index++
+                            }
+                        }
+                        //Copying fraction part of significand to the last 23 bits
+                        for (let i = 0; i < 23; i++) {
+                            inputval = inputval * 10
+                            if ((Math.round(inputval) % 10) == 1){
+                                IEEE754[i + 9] = 1
+                            }
+                            else{
+                                IEEE754[i + 9] = 0
+                            }
                         }
                     }
                 }
-                //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
-                for (let i = 0; i < 8; i++) {
-                    index = i * 4
-                    value = 8
-                    for (let j = 0; j < 4; j++){
-                        if(IEEE754[index + j] == 1){
-                            hex[i] += value
-                        }
-                        value = value / 2
-                    }
-                    if(hex[i] >= 10){
-                        switch(hex[i]){
-                            case 10:
-                                hex[i] = "A"
-                                break
-                            case 11:
-                                hex[i] = "B"
-                                break
-                            case 12:
-                                hex[i] = "C"
-                                break
-                            case 13:
-                                hex[i] = "D"
-                                break
-                            case 14:
-                                hex[i] = "E"
-                                break
-                            case 15:
-                                hex[i] = "F"
-                        }
-                    }
-                }
-
             }
-
+            //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
+            for (let i = 0; i < 8; i++) {
+                index = i * 4
+                value = 8
+                for (let j = 0; j < 4; j++){
+                    if(IEEE754[index + j] == 1){
+                        hex[i] += value
+                    }
+                    value = value / 2
+                }
+                if(hex[i] >= 10){
+                    switch(hex[i]){
+                        case 10:
+                            hex[i] = "A"
+                            break
+                        case 11:
+                            hex[i] = "B"
+                            break
+                        case 12:
+                            hex[i] = "C"
+                            break
+                        case 13:
+                            hex[i] = "D"
+                            break
+                        case 14:
+                            hex[i] = "E"
+                            break
+                        case 15:
+                            hex[i] = "F"
+                    }
+                }
+            }
         }
         else
         {
             // Converting Binary (Base-2) to IEEE-754
-            //Check if input number is zero
-            if (inputval != 0){
-                //Normalizing significand
-                while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
-                    if (inputval >= 2 || inputval <= -2){
-                        inputval = inputval / 10
-                        expval++
-                    }
-                    else{
-                        inputval = inputval * 10
-                        expval--
-                    }
+            //Check if sNAN or qNAN is selected
+            if (nan == "sNAN is selected. Press the sNAN button again to unselect."){
+                for (let i = 1; i < 9; i++){
+                    IEEE754[i] = 1
+                    console.log(IEEE754)
                 }
-                //If input is negative, set the sign bit to 1
-                if(inputval < 0){
-                    IEEE754[0] = 1
-                    inputval *= -1
+                IEEE754[9] = 0
+                IEEE754[10] = 1
+            }
+            else if (nan == "qNAN is selected. Press the qNAN button again to unselect."){
+                for (let i = 1; i < 9; i++){
+                    IEEE754[i] = 1
+                    console.log(IEEE754)
                 }
-                //If input is infinity
-                if (expval > 127){
-                    for (let i = 1; i < 9; i++){
-                        IEEE754[i] = 1
-                    }
-                }
-                else{
-                    //If input is denormalized
-                    if (expval < -126){
-                        while (expval < -126){
+                IEEE754[9] = 1
+            }
+            else{
+                //Check if input number is zero
+                if (inputval != 0){
+                    //Normalizing significand
+                    while ((inputval > -1 && inputval < 1) || inputval >= 2 || inputval <= -2){
+                        if (inputval >= 2 || inputval <= -2){
                             inputval = inputval / 10
                             expval++
                         }
+                        else{
+                            inputval = inputval * 10
+                            expval--
+                        }
+                    }
+                    //If input is negative, set the sign bit to 1
+                    if(inputval < 0){
+                        IEEE754[0] = 1
+                        inputval *= -1
+                    }
+                    //If input is infinity
+                    if (expval > 127){
+                        for (let i = 1; i < 9; i++){
+                            IEEE754[i] = 1
+                        }
                     }
                     else{
-                        //e' = e + 127
-                        ePrime = 127 + expval
-                        let binary = 128
-                        let index = 1
-                        //Converting e' to binary
-                        while (ePrime > 0){
-                            if(ePrime >= binary){
-                                ePrime -= binary
-                                IEEE754[index] = 1
+                        //If input is denormalized
+                        if (expval < -126){
+                            while (expval < -126){
+                                inputval = inputval / 10
+                                expval++
                             }
-                            binary = binary / 2
-                            index++
-                        }
-                    }
-                    //Copying fraction part of significand to the last 23 bits
-                    for (let i = 0; i < 23; i++) {
-                        inputval = inputval * 10
-                        if ((Math.round(inputval) % 10) == 1){
-                            IEEE754[i + 9] = 1
                         }
                         else{
-                            IEEE754[i + 9] = 0
+                            //e' = e + 127
+                            ePrime = 127 + expval
+                            let binary = 128
+                            let index = 1
+                            //Converting e' to binary
+                            while (ePrime > 0){
+                                if(ePrime >= binary){
+                                    ePrime -= binary
+                                    IEEE754[index] = 1
+                                }
+                                binary = binary / 2
+                                index++
+                            }
+                        }
+                        //Copying fraction part of significand to the last 23 bits
+                        for (let i = 0; i < 23; i++) {
+                            inputval = inputval * 10
+                            if ((Math.round(inputval) % 10) == 1){
+                                IEEE754[i + 9] = 1
+                            }
+                            else{
+                                IEEE754[i + 9] = 0
+                            }
                         }
                     }
                 }
-                //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
-                for (let i = 0; i < 8; i++) {
-                    index = i * 4
-                    value = 8
-                    for (let j = 0; j < 4; j++){
-                        if(IEEE754[index + j] == 1){
-                            hex[i] += value
-                        }
-                        value = value / 2
+            }
+            //Converting the IEEE-754 Binary-32 floating point representation to hexadecimal
+            for (let i = 0; i < 8; i++) {
+                index = i * 4
+                value = 8
+                for (let j = 0; j < 4; j++){
+                    if(IEEE754[index + j] == 1){
+                        hex[i] += value
                     }
-                    if(hex[i] >= 10){
-                        switch(hex[i]){
-                            case 10:
-                                hex[i] = "A"
-                                break
-                            case 11:
-                                hex[i] = "B"
-                                break
-                            case 12:
-                                hex[i] = "C"
-                                break
-                            case 13:
-                                hex[i] = "D"
-                                break
-                            case 14:
-                                hex[i] = "E"
-                                break
-                            case 15:
-                                hex[i] = "F"
-                        }
+                    value = value / 2
+                }
+                if(hex[i] >= 10){
+                    switch(hex[i]){
+                        case 10:
+                            hex[i] = "A"
+                            break
+                        case 11:
+                            hex[i] = "B"
+                            break
+                        case 12:
+                            hex[i] = "C"
+                            break
+                        case 13:
+                            hex[i] = "D"
+                            break
+                        case 14:
+                            hex[i] = "E"
+                            break
+                        case 15:
+                            hex[i] = "F"
                     }
                 }
             }
@@ -275,6 +310,33 @@ $(document).ready(function (){
 
     });
 
+    $('#snan').on('click', function (e){
+        let nan = $('#nan').text()
+        if (nan != "sNAN is selected. Press the sNAN button again to unselect."){
+            $("#input").prop('disabled', true);
+            $("#exp").prop('disabled', true);
+            $("#nan").text("sNAN is selected. Press the sNAN button again to unselect.")
+        }
+        else{
+            $("#input").prop('disabled', false);
+            $("#exp").prop('disabled', false);
+            $("#nan").text("")
+        }
+    });
+
+    $('#qnan').on('click', function (e){
+        let nan = $('#nan').text()
+        if (nan != "qNAN is selected. Press the qNAN button again to unselect."){
+            $("#input").prop('disabled', true);
+            $("#exp").prop('disabled', true);
+            $("#nan").text("qNAN is selected. Press the qNAN button again to unselect.")
+        }
+        else{
+            $("#input").prop('disabled', false);
+            $("#exp").prop('disabled', false);
+            $("#nan").text("")
+        }
+    });
 
     // User presses "SAVE AS TEXT FILE"
     $('#save').on('click', function (e){
@@ -295,8 +357,17 @@ $(document).ready(function (){
 
         let inputval = parseFloat($("#input").val())    // Input number
         let expval = parseInt($("#exp").val())          // Input exponent
-
-        var content = compute_mode + "Input: " + inputval + " x " + base + "^" + expval + "\n\nIEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
+        let nan = $('#nan').text()
+        var content = ""
+        if (nan == "sNAN is selected. Press the sNAN button again to unselect."){
+            content = compute_mode + "Input: sNAN\n\nIEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
+        }
+        else if (nan == "qNAN is selected. Press the qNAN button again to unselect."){
+            content = compute_mode + "Input: qNAN\n\nIEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
+        }
+        else{
+            content = compute_mode + "Input: " + inputval + " x " + base + "^" + expval + "\n\nIEEE-754 Single Precision Binary:\n" + resulttext.text() + "\nHexadecimal Equivalent:\n" + hextext.text();
+        }
 
         //create a file and put the content, name and type
         var file = new File(["\ufeff"+content], 'output.txt', {type: "text/plain:charset=UTF-8"});
