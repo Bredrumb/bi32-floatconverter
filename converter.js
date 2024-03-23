@@ -401,11 +401,11 @@ $(document).ready(function (){
         let basetype = $('input[name=base]:checked', '#chosenbase').val()        // 'binary' or 'decimal'
 
         if(basetype == "decimal"){
-            if (exp_value > 299) {
+            if (exp_value > 90) {
                 $("#convert").prop("disabled", true);
                 $("#expwarning").text("Exponent value too high. The application might crash.")
             }
-            else if (exp_value < -99) {
+            else if (exp_value < -90) {
                 $("#convert").prop("disabled", true);
                 $("#expwarning").text("Exponent value too low. The application might crash.")
             }
